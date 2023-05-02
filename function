@@ -1,0 +1,44 @@
+function  var = two_strains_model(t,y,...
+                       beta1, gamma1, gamma1_prime, beta1_prime, phi1, T1, ...
+                       beta2, gamma2, gamma2_prime, beta2_prime, phi2, T2, ...
+                       f1, f2, ...
+                       eta1, eta2, ...
+                       sigma1, sigma2,...
+                       population, mu) 
+                       
+                   
+            
+var = zeros(16,1);
+
+
+lambda1 = beta1 * (y(3) + sigma1 * y(11) + y(12) + y(13)) / population * (1 + beta1_prime * cos(2*pi*(t-phi1)/T1));
+lambda2 = beta2 * (y(6) + sigma2 * y(9) + y(12) + y(15)) / population * (1 + beta2_prime * cos(2*pi*(t-phi2)/T2));
+
+var(1) =   mu - lambda1 * y(1) - lambda2 * y(1);
+var(2) =   lambda1 * y(1) - gamma1 * y(2) - lambda2 * y(2);
+var(3) =   gamma1 * y(2) - gamma1_prime * y(3) - lambda2 * y(3); 
+var(4) =   gamma1_prime * y(3) - lambda2 * y(4); 
+
+var(5) =   lambda2 * y(1) - gamma2 * y(5) - lambda1 * y(5);
+var(6) =   gamma2 * y(5) - gamma2_prime * y(6) - lambda1 * y(6);
+var(7) =   gamma2_prime * y(6) - lambda1 * y(7);
+
+var(8) =   lambda2 * y(2) + lambda1 * y(5) - gamma1 * y(8) - gamma2 * y(8);
+var(9) =   gamma2 * y(8) + lambda1 * y(6) - eta1 * gamma1 * y(9) - f2 * gamma2_prime * y(9);
+var(10) =  lambda1 * y(7) + f2 * gamma2_prime * y(9) - gamma1 * y(10);
+
+var(11) =   gamma1 * y(8) + lambda2 * y(3) - f1 * gamma1_prime * y(11) - eta2 * gamma2 * y(11);
+var(12) =   eta2 * gamma2 * y(11) + eta1 * gamma1 * y(9) - gamma1_prime * y(12) - gamma2_prime * y(12);
+var(13) =   gamma1 * y(10) + gamma2_prime * y(12) - gamma1_prime * y(13);
+
+var(14) =   lambda2 * y(4) + f1 * gamma1_prime * y(11) - gamma2 * y(14);
+var(15) =   gamma2 * y(14) + gamma1_prime * y(12) - gamma2_prime * y(15);
+var(16) =   gamma2_prime * y(15) + gamma1_prime * y(13);
+
+end 
+
+
+
+
+
+ 
