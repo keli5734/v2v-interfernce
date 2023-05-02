@@ -1,0 +1,136 @@
+ clear 
+ clc 
+ close all
+ 
+%%
+
+% define parameters and parameter values 
+
+beta1 = 1;
+gamma1 = 0.05;
+gamma1_prime = 0.15;
+beta1_prime = 0.5;
+phi1 = 0;
+T1 = 365;
+
+beta2 = 1;
+gamma2 = 0.05;
+gamma2_prime = 0.15;
+beta2_prime = 0.5;
+phi2 = 0;
+T2 = 365;
+
+
+f1 = 1; % shorten the v1 infection
+f2 = 1; % shorten the v2 infection  >1 means infection is shortened
+
+eta1 = 1; % delay the v1 infection
+eta2 = 1; % delay the v2 infection   <1 means infection is delayed
+
+sigma1 = 1; % decrease v1 infectivity 
+sigma2 = 1; % decrease v2 infecitivty <1 means infectivity is decreased
+ 
+
+%alpha1 = 4 / 7 / 2; % basic transmission rate for virus 1, per week
+% alpha1_prime = 0.5; % seasonal amplitude for virus 1 
+% phi1 = 0; % annual transmission cycle for virus 1 
+% omega1 = 1 / 365; % wanning immunity rate for virus 1 <---- somehow an important parameter to estimate, which determines which which arms of immune response
+% gamma1 = 1 / 10; % recovery rate for virus 1, day
+% T1 = 365;
+% 
+% 
+% alpha2 =  3 / 7 / 2; % basic transmission rate for virus 2
+% alpha2_prime = 0.2; % seasonal amplitude for virus 2 
+% phi2 = 0; % annual transmission cycle for virus 2
+% omega2 = 1 / 365; % wanning immunity rate for virus 2, day 
+% gamma2 = 1 / 10; % recovery rate for virus 2, day
+% T2 = 365*2;
+% 
+% delta1 = 0;
+% delta2 = 0;
+% deltaP = 1/4;
+
+%epsilon1 =  100; % immunity of virus 1 on virus 1
+%epsilon2 =  30; % immunity of virus 2 on virus 1
+%epsilon3 =  40; % immunity of virus 1 on virus 2
+%epsilon4 =  70; % immunity of virus 2 on virus 2
+% 
+% epsilon5 = 0; % cross immunity of virus 1 against 2
+% epsilon6 = 0; % cross immunity of virus 2 against 1
+
+population = 1e+4;
+mu = 15;
+ 
+% time setting of viral infection
+
+
+t0_inf = 0;
+t_end_inf = 365 * 4; % reporting days
+report_point_inf = (t_end_inf - t0_inf)/7; % reporting daily
+report_time_inf = linspace(t0_inf, t_end_inf, report_point_inf);
+len_inf = length(report_time_inf);
+
+% Viral Variables 
+
+Xss = zeros(1,len_inf); 
+X1as = zeros(1,len_inf);
+X1bs = zeros(1,len_inf);
+Xrs = zeros(1,len_inf);
+
+Xs2a = zeros(1,len_inf);
+Xs2b = zeros(1,len_inf);
+Xsr = zeros(1,len_inf);
+
+X1a2a = zeros(1,len_inf);
+X1a2b = zeros(1,len_inf);
+X1ar = zeros(1,len_inf);
+
+X1b2a = zeros(1,len_inf);
+X1b2b = zeros(1,len_inf);
+X1br = zeros(1,len_inf);
+
+Xr2a = zeros(1,len_inf);
+Xr2b = zeros(1,len_inf);
+Xrr = zeros(1,len_inf);
+
+
+options = odeset('RelTol',1e-10,'AbsTol',1e-20); 
+
+ 
+ 
+% define initial conditions 
+X1bs(1) = 1;
+Xs2b(1) = 1;
+Xss(1) = population - X1bs(1) - Xs2b(1);
+
+init_inf = zeros(1,16)'; % initial conditions
+init_inf(1) = Xss(1);
+init_inf(3) = X1bs(1);
+init_inf(6) = Xs2b(1);
+        
+
+
+
+[~,output] = ode15s(@two_strains_model, report_time_inf, init_inf, options,...
+                       beta1, gamma1, gamma1_prime, beta1_prime, phi1, T1, ...
+                       beta2, gamma2, gamma2_prime, beta2_prime, phi2, T2, ...
+                       f1, f2, ...
+                       eta1, eta2, ...
+                       sigma1, sigma2,...
+                       population, mu);
+
+ 
+
+
+fig = figure();
+plot(report_time_inf/7, (output(:,3) + output(:,11) + output(:,12) + output(:,13))/population, 'k','LineWidth',1.5)
+hold on 
+plot(report_time_inf/7, (output(:,6) + output(:,9) + output(:,12) + output(:,15))/population, 'b', 'LineWidth', 1.5)
+hold off 
+legend('V1', 'V2')
+ylabel("prevalence")
+xlabel("Weeks")
+fontsize(fig, 24, "points")    
+
+ 
+ 
